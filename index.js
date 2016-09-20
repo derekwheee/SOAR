@@ -4,7 +4,8 @@ const five = require('johnny-five');
 const Tessel = require('tessel-io');
 const Soar = require('./soar.js');
 const board = new five.Board({
-  io: new Tessel()
+  io : new Tessel(),
+  repl : false
 });
 
 board.on('ready', () => {

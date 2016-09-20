@@ -1,5 +1,7 @@
 "use strict";
 
+const within = require('./fn/within.js');
+
 class Soar {
     constructor(ctx, five) {
 
@@ -7,7 +9,7 @@ class Soar {
 
         this.leds = {
             status : new five.Led('b5'),
-            running : new five.Led('b4')
+            activity : new five.Led('b4')
         };
 
         this.sensors = {
@@ -25,14 +27,26 @@ class Soar {
             }
         };
 
-        // this.motors = {
-        //     left : new five.Motor({
-        //
-        //     }),
-        //     right : new five.Motor({
-        //
-        //     })
-        // }
+        this.motors = {
+            left : new five.Motor({
+                controller: "PCA9685",
+                frequency: 200, // Hz
+                pins: {
+                    pwm: 8,
+                    dir: 9,
+                    cdir: 10,
+                },
+            }),
+            right : new five.Motor({
+                controller: "PCA9685",
+                frequency: 200, // Hz
+                pins: {
+                    pwm: 13,
+                    dir: 12,
+                    cdir: 11,
+                },
+            })
+        }
 
     }
 
@@ -44,7 +58,7 @@ class Soar {
 
             this.state.set('proximityLeft', data.cm);
 
-            if (!isNaN(data.cm) && data.cm < 10 && !this.state.get('avoiding')) {
+            if (!isNaN(data.cm) && within([4, 10], data.cm) && !this.state.get('avoiding')) {
                 this.avoid();
             }
         });
@@ -53,24 +67,61 @@ class Soar {
 
             this.state.set('proximityRight', data.cm);
 
-            if (!isNaN(data.cm) && data.cm < 10 && !this.state.get('avoiding')) {
+            if (!isNaN(data.cm) && within([4, 10], data.cm) && !this.state.get('avoiding')) {
                 this.avoid();
             }
         });
+
+        this.forward();
 
     }
 
     avoid () {
 
+        const distanceLeft = this.state.get('proximityLeft');
+        const distanceRight = this.state.get('proximityRight')
+
         this.state.set('avoiding', true);
+        this.leds.activity.blink(100);
+        this.stop();
+        this.reverse();
 
-        console.log('AVOIDING');
-        console.log(this.state.get('proximityLeft'));
-        console.log(this.state.get('proximityRight'));
+        setTimeout(this.turn.bind(this, (distanceLeft < distanceRight ? 'left' : 'right')), 1000);
+        setTimeout(function () {
 
-        setTimeout(() => {
             this.state.set('avoiding', false);
-        }, 500)
+            this.leds.activity.stop().off();
+            this.forward();
+
+        }, 1500);
+
+    }
+
+    forward () {
+
+        this.motors.left.forward(255);
+        this.motors.right.forward(255);
+
+    }
+
+    reverse () {
+
+        this.motors.left.reverse(255);
+        this.motors.right.reverse(255);
+
+    }
+
+    turn (direction) {
+
+        this.motors.left[direction === 'left' : 'forward' : 'reverse'](120);
+        this.motors.right[direction === 'right' : 'forward' : 'reverse'](120);
+
+    }
+
+    stop () {
+
+        this.motors.left.stop();
+        this.motors.right.stop();
 
     }
 }
