@@ -11,5 +11,9 @@
     "Tessel"
   ],
   "license": "MIT",
-  "readme": "Shitty Obstable Avoidance Robot"
+  "readme": "Shitty Obstable Avoidance Robot",
+  "dependencies": {
+    "johnny-five": "^0.10.0",
+    "tessel-io": "^0.7.2"
+  }
 }
