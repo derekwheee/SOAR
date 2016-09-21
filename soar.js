@@ -113,8 +113,8 @@ class Soar {
 
     turn (direction) {
 
-        this.motors.left[direction === 'left' : 'forward' : 'reverse'](120);
-        this.motors.right[direction === 'right' : 'forward' : 'reverse'](120);
+        this.motors.left[direction === 'left' ? 'forward' : 'reverse'](120);
+        this.motors.right[direction === 'right' ? 'forward' : 'reverse'](120);
 
     }
 
