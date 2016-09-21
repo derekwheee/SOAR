@@ -8,43 +8,37 @@ class Soar {
         this.state = new Map();
 
         this.leds = {
-            status : new five.Led('b5'),
-            activity : new five.Led('b4')
+            status : new five.Led('b2'),
+            activity : new five.Led('b3')
         };
 
-        this.sensors = {
-            proximity : {
-                left : new five.Proximity({
-                    controller : 'GP2Y0A41SK0F',
-                    pin : 'b6',
-                    freq : 100
-                }),
-                right : new five.Proximity({
-                    controller : 'GP2Y0A41SK0F',
-                    pin : 'b7',
-                    freq : 100
-                })
-            }
+        this.proximity = {
+            left : new five.Proximity({
+                controller : 'GP2Y0A41SK0F',
+                pin : 'b7',
+                freq : 100
+            }),
+            right : new five.Proximity({
+                controller : 'GP2Y0A41SK0F',
+                pin : 'a7',
+                freq : 100
+            })
         };
 
         this.motors = {
             left : new five.Motor({
-                controller: "PCA9685",
-                frequency: 200, // Hz
                 pins: {
-                    pwm: 8,
-                    dir: 9,
-                    cdir: 10,
+                    pwm: 'a5',
+                    dir: 'a6'
                 },
+                invertPWM: true
             }),
             right : new five.Motor({
-                controller: "PCA9685",
-                frequency: 200, // Hz
                 pins: {
-                    pwm: 13,
-                    dir: 12,
-                    cdir: 11,
+                    pwm: 'b6',
+                    dir: 'b5'
                 },
+                invertPWM: true
             })
         }
 
@@ -54,7 +48,7 @@ class Soar {
 
         this.leds.status.on();
 
-        this.sensors.proximity.left.on('data', (data) => {
+        this.proximity.left.on('data', (data) => {
 
             this.state.set('proximityLeft', data.cm);
 
@@ -63,7 +57,7 @@ class Soar {
             }
         });
 
-        this.sensors.proximity.right.on('data', (data) => {
+        this.proximity.right.on('data', (data) => {
 
             this.state.set('proximityRight', data.cm);
 
@@ -93,7 +87,7 @@ class Soar {
             this.leds.activity.stop().off();
             this.forward();
 
-        }, 1500);
+        }.bind(this), 2000);
 
     }
 
@@ -113,8 +107,8 @@ class Soar {
 
     turn (direction) {
 
-        this.motors.left[direction === 'left' ? 'forward' : 'reverse'](120);
-        this.motors.right[direction === 'right' ? 'forward' : 'reverse'](120);
+        this.motors.left[direction === 'left' ? 'forward' : 'reverse'](255);
+        this.motors.right[direction === 'right' ? 'forward' : 'reverse'](255);
 
     }
 
